@@ -1,0 +1,9 @@
+﻿  Linear Equations.cpp
+D:\Projects\Foundations\Linear Equations\Linear Equations.cpp(75,15): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+D:\Projects\Foundations\Linear Equations\Linear Equations.cpp(103,18): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+D:\Projects\Foundations\Linear Equations\Linear Equations.cpp(115,44): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+D:\Projects\Foundations\Linear Equations\Linear Equations.cpp(191,11): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+D:\Projects\Foundations\Linear Equations\Linear Equations.cpp(362,19): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+D:\Projects\Foundations\Linear Equations\Linear Equations.cpp(426,21): warning C4244: 'initializing': conversion from '__int64' to 'int', possible loss of data
+D:\Projects\Foundations\Linear Equations\Linear Equations.cpp(429,19): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+  Linear Equations.vcxproj -> D:\Projects\Foundations\Linear Equations\x64\Debug\Linear Equations.exe
