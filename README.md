@@ -15,33 +15,6 @@ This project is a command-line linear equation solver developed in C++. It accep
 
 ---
 
-## Getting Started
-
-### Prerequisites
-
-- A C++ compiler supporting C++17 (e.g., `g++`, `clang++`, MSVC)
-- Linux, macOS, or Windows with a terminal
-
-### Installation
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/your-username/linear-equation-solver.git
-   cd linear-equation-solver
-   ```
-
-2. Compile the source code:
-   ```bash
-   g++ -std=c++17 -o solver main.cpp
-   ```
-
-3. Run the program:
-   ```bash
-   ./solver
-   ```
-
----
-
 ## Usage
 
 ### Input Format
