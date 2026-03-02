@@ -78,7 +78,7 @@ Parsed: Valid equation with clean coefficients and variables
 | Field | Details |
 |---|---|
 | Course | Foundations of Software Development 2025–2026 |
-| Group | Intelligent |
+| Group | Intelligent Dose |
 | Supervisor | Eng. Mostafa Ashraf |
 
 ---
