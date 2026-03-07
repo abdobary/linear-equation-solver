@@ -181,7 +181,7 @@ float determinant(vector<vector<float>> a) { /* it takes the equations as matrix
 
                                                                                       So determinant is calculated for two purposes
                                                                                           det(A) ? check if system has a unique solution
-                                                                                          det(Ai) ? calculate variable values using Cramer’s Rule
+                                                                                          det(Ai) ? calculate variable values using CramerÂ’s Rule
 
                                                                                       What happens if det(A) = 0?
                                                                                           System cannot be solved uniquely
@@ -206,7 +206,7 @@ float determinant(vector<vector<float>> a) { /* it takes the equations as matrix
             det *= -1; // Row swap flips determinant sign
         }
 
-        det *= a[i][i]; // det = -1 × 3 = -3
+        det *= a[i][i]; // det = -1 Ã— 3 = -3
         float div = a[i][i]; // store 3 in dive
         /*
             now     det = -3
@@ -220,7 +220,7 @@ float determinant(vector<vector<float>> a) { /* it takes the equations as matrix
         for (int j = i + 1; j < n; j++) {
             float factor = a[j][i];
             for (int k = i; k < n; k++)
-                a[j][k] -= factor * a[i][k]; // [1 2 1] ? factor × [1 0.33 0.67] ? [0 1.67 0.33]
+                a[j][k] -= factor * a[i][k]; // [1 2 1] ? factor Ã— [1 0.33 0.67] ? [0 1.67 0.33]
         }
     }
     return det;
@@ -372,13 +372,37 @@ int main() {
 
             if (cmd == "D") { // print coefficient matrix
 
-                for (int i = 0; i < m; i++) {
-                    for (int j = 0; j < m; j++) {
-                        if (j) cout << " ";
-                        cout << floatToString(A[i][j]);
-                    }
-                    cout << endl;
-                }
+                if (cin.peek() == '\n') {
+    // user typed: D
+
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < m; j++) {
+            if (j) cout << " ";
+            cout << floatToString(A[i][j]);
+        }
+        cout << endl;
+    }
+}
+else {
+    // user typed: D x1
+
+    string v;
+    cin >> v;
+
+    int col = find(varList.begin(), varList.end(), v)/*find position*/ - varList.begin();
+
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < m; j++) {
+
+            float val = (j == col) ? B[i] : A[i][j];
+
+            if (j) cout << " ";
+
+            cout << floatToString(val);
+        }
+        cout << endl;
+    }
+}
             }
 
 
@@ -413,36 +437,8 @@ int main() {
             }
         }
 
-
-        else if (cmd == "D") {
-            // print determinant matrix for specific variable
-
-            string v;
-            // variable name
-
-            cin >> v;
-            // read variable
-
-            int col = find(varList.begin(), varList.end(), v) - varList.begin();
-            // find column index
-
-            int m = varList.size();
-            // number of variables
-
-            for (int i = 0; i < m; i++) {
-                for (int j = 0; j < m; j++) {
-                    float val = (j == col)
-                        ? eq[i].constant
-                        : eq[i].coefficient[varList[j]];
-                    // replace column with constants
-
-                    if (j) cout << " ";
-                    cout << floatToString(val);
-                }
-                cout << endl;
-            }
-        }
     }
     
         return 0;
     }
+
