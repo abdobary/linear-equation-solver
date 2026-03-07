@@ -244,17 +244,13 @@ float dt(vector<vector<float>> a) { /* it takes the equations as matrix like a[0
             a[i][j] /= div; // Normalize row 0: | 1  0.33  0.67 |
 
         for (int j = i + 1; j < n; j++) {
-            float factor = a[j][i];
+            float fact = a[j][i];
             for (int k = i; k < n; k++)
-                a[j][k] -= factor * a[i][k]; // [1 2 1] ? factor × [1 0.33 0.67] ? [0 1.67 0.33]
+                a[j][k] -= fact * a[i][k]; // [1 2 1] ? factor × [1 0.33 0.67] ? [0 1.67 0.33]
         }
     }
     return det;
 }
-
-
-
-
 
 /////////////////////////////////////////////////////////////////////////////////
                         /* ---------- Main ---------- */
@@ -296,14 +292,14 @@ int main() {
     }
 
 
-    vector<string> varList(variables.begin(), variables.end()); // convert set of variables into a vector (ordered list of variables)
+    vector<string> ListMyVars(variables.begin(), variables.end()); // convert set of variables into a vector (ordered list of variables)
     string cmd; // string to store command entered by user
 
     while (cin/*reads words*/ >> cmd) { // keep reading commands until input ends
 
         if (cmd == "quit") break; // if command is "quit", stop the program
         if (cmd == "num_vars") {  // command to print number of variables
-            cout << varList.size() << endl; // print count of unique variables
+            cout << ListMyVars.size() << endl; // print count of unique variables
         }
         else if (cmd == "equation") { // command to print a specific equation
             int i; // equation index
@@ -348,7 +344,7 @@ int main() {
             Equ r;
             // result equation
 
-            for (auto& v : varList) {
+            for (auto& v : ListMyVars) {
                 // loop over all variables
 
                 float x = eq[a - 1].coef[v];
@@ -370,6 +366,9 @@ int main() {
             // print result equation
         }
 
+        //////////////////////////////////////////////////////////////////////////
+        //                            get the x value                           //
+        //////////////////////////////////////////////////////////////////////////
 
         else if (cmd == "substitute") {
             // substitute variable from one equation into another
@@ -385,13 +384,13 @@ int main() {
                 for (auto& p : eq[b - 1].coef) {
                     // loop through equation b coefficients
 
-                    if (p.first != v)
-                        // skip the substituted variable
-
+                    if (p.first != v) // skip the substituted variable
                         r.coef[p.first] -= c * p.second / eq[b - 1].coef.at(v);
-                    // substitute variable using equation b
+                        // substitute variable using equation b
+                    /*
+                        coefficient of variable v in equation b
+                    */
                 }
-
                 r.consta -= c * eq[b - 1].consta / eq[b - 1].coef.at(v);
                 // update constant term
             }
@@ -403,7 +402,7 @@ int main() {
 
         else if (cmd == "D" || cmd == "D_value" || cmd == "solve") { // determinant-related commands
 
-            int m = varList.size(); // number of variables
+            int m = ListMyVars.size(); // number of variables
             vector<vector<float>> A(m, vector<float>(m)); // coefficient matrix
             /*
                 // 2 rows, 5 columns
@@ -419,14 +418,18 @@ int main() {
             for (int i = 0; i < m; i++) { // build matrix from equations
                 B[i] = eq[i].consta; // store constant values
                 for (int j = 0; j < m; j++)
-                    A[i][j] = eq[i].coef[varList[j]]; // store coefficients
+                    A[i][j] = eq[i].coef[ListMyVars[j]]; // store coefficients
             }
 
 
-            if (cmd == "D") { // print coefficient matrix
+            if (cmd == "D") { 
+
+                //////////////////////////////////////////////////////////////////////////
+                //                    show coefficient matrix only                      //
+                //////////////////////////////////////////////////////////////////////////
 
                 if (cin.peek() == '\n') {
-                    // user typed: D
+                    // user entered: D
 
                     for (int i = 0; i < m; i++) {
                         for (int j = 0; j < m; j++) {
@@ -437,7 +440,7 @@ int main() {
                     }
                 }
                 else {
-                    // user typed: D x1
+                    // user entered: D x1
 
                     //////////////////////////////////////////////////////////////////////////
                     //                    replace x1 column with constants                  //
@@ -446,7 +449,7 @@ int main() {
                     string v;
                     cin >> v;
 
-                    int col = find(varList.begin(), varList.end(), v)/*find position*/ - varList.begin();
+                    int col = find(ListMyVars.begin(), ListMyVars.end(), v)/*find position*/ - ListMyVars.begin();
 
                     for (int i = 0; i < m; i++) {
                         for (int j = 0; j < m; j++) {
@@ -491,7 +494,7 @@ int main() {
                         float Di = dt(Ai);//                                         -
                         // determinant for variable i                                -
                         //                                                           -
-                        cout << varList[i] << "=" //                                 -
+                        cout << ListMyVars[i] << "=" //                              -
                             << fToStr(Di / D) << endl;//                             -
                         // print solution                                            -
                     } //                                                             -
