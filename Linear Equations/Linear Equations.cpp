@@ -18,75 +18,17 @@ struct Equ {
     float consta = 0; // for example equation 1 = 19; 19 is the constant 
 };
 
-
-string fToStr(float x) {
-    if (fabs(x - round(x)/*nearest integer*/) < 1e-6) {  // is x close to integer like 3.0000001 >>> then turn it to 3
-        // 3.00001 - 3 = 0.0000001 then convert to nearst integer
-        return to_string((int)round(x));  // turn it to nearest integer
-    }
-    ostringstream ss;
-    /*
-        ostringstream is used because it provides a safe, flexible way to convert the "clean integer"
-        (which might actually be a double that's very close to an integer) to a string
-        without trailing .000000 artifacts.
-    */
-    ss << x; // store the clean integer to string
-    return ss.str(); // str() = converts the stringstream to a std::string
-    /*
-        Why not just use to_string()?
-            Modern C++ usually uses:
-                string s = to_string(x);
-            But stringstream is used when:
-                combining multiple things
-                formatting numbers
-                                        Example:
-                                        int x = 3;
-                                        int y = 5;
-                                        stringstream ss;
-                                        ss << x << "x1 + " << y << "x2";
-                                        cout << ss.str();
-                                        Output: 3x1 + 5x2
-    */
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-
-string equToStr(const Equ& e) {    // to print the equation
-    string res;
-    bool first = true;
-
-    for (auto& it : e.coef) {  // (it) is the keys : loop on vector, map, array, etc.
-        float c = it.second;                    // second means the float value and first means the key
-        if (fabs(c) < 1e-6) continue;  // if coefficient == 0 then skip this cuz anything multiple with 0 = 0
-
-        if (!first && c > 0) res += "+"; // not the first coefficient in the equation then put + in the string and go next
-
-        if (fabs(c) != 1) // if coefficient != 1 then get the number cuz 1 can be empty in coefficient
-            res += fToStr(c);
-        else if (c == -1)
-            res += "-";
-
-        res += it.first; // after add the coefficient then add the key for example x1
-        first = false; // now we took first coefficient and the key then go next and add + / -
-    }
-
-    if (res.empty()) res = "0";  // no equation
-    res += "=" + fToStr(e.consta); // no equation = constant
-    return res;
-}
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*
     input for example
     1
-    6-6+3.2x5-5.2y2-*&(&44x3-[[5+]10-2x4-]]10-5+2=10+3x2
+    6-6+3.2x5-5.2y2-*&(&44x3-[[5+]10-2x4-]]10-5+2=10+3x2-x3
     equation 1
 */
 
-Equ parseEquation(string s) {  // token
+Equ ReadEqu(string s) {  // token
     Equ e;
 
     s.erase(remove(s.begin(), s.end(), ' '), s.end()); // remove the spaces in the equation string
@@ -177,6 +119,70 @@ Equ parseEquation(string s) {  // token
 
     return e;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+string fToStr(float x) {
+    if (fabs(x - round(x)/*nearest integer*/) < 1e-6) {  // is x close to integer like 3.0000001 >>> then turn it to 3
+        // 3.00001 - 3 = 0.0000001 then convert to nearst integer
+        return to_string((int)round(x));  // turn it to nearest integer
+    }
+    ostringstream ss;
+    /*
+        ostringstream is used because it provides a safe, flexible way to convert the "clean integer"
+        (which might actually be a double that's very close to an integer) to a string
+        without trailing .000000 artifacts.
+    */
+    ss << x; // store the clean integer to string
+    return ss.str(); // str() = converts the stringstream to a std::string
+    /*
+        Why not just use to_string()?
+            Modern C++ usually uses:
+                string s = to_string(x);
+            But stringstream is used when:
+                combining multiple things
+                formatting numbers
+                                        Example:
+                                        int x = 3;
+                                        int y = 5;
+                                        stringstream ss;
+                                        ss << x << "x1 + " << y << "x2";
+                                        cout << ss.str();
+                                        Output: 3x1 + 5x2
+    */
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+string equToStr(const Equ& e) {    // to print the equation
+    string res;
+    bool first = true;
+
+    for (auto& it : e.coef) {  // (it) is the keys : loop on vector, map, array, etc.
+        float c = it.second;                    // second means the float value and first means the key
+        if (fabs(c) < 1e-6) continue;  // if coefficient == 0 then skip this cuz anything multiple with 0 = 0
+
+        if (!first && c > 0) res += "+"; // not the first coefficient in the equation then put + in the string and go next
+
+        if (fabs(c) != 1) // if coefficient != 1 then get the number cuz 1 can be empty in coefficient
+            res += fToStr(c);
+        else if (c == -1)
+            res += "-";
+
+        res += it.first; // after add the coefficient then add the key for example x1
+        first = false; // now we took first coefficient and the key then go next and add + / -
+    }
+
+    if (res.empty()) res = "0";  // no equation
+    res += "=" + fToStr(e.consta); // no equation = constant
+    return res;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 /* ---------- Matrix Operations ---------- */
 
@@ -284,7 +290,7 @@ int main() {
     for (int i = 0; i < n; i++) { // loop to read each equation
         string s; // string to hold the equation line
         getline(cin, s); // read the full equation line (including +, -, =)
-        eq[i] = parseEquation(s); // parse the equation string into coefficients and constant
+        eq[i] = ReadEqu(s); // parse the equation string into coefficients and constant
         for (auto& p : eq[i].coef) // loop over each variable-coefficient pair in the equation
             variables.insert(p.first); // insert variable name into the set (duplicates auto removed)
     }
