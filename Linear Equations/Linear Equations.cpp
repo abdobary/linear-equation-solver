@@ -3,45 +3,67 @@
 #include <map>
 #include <vector>
 #include <set>
+//#include <bits/stdc++.h>
+#include <algorithm>
 #include <sstream>
 #include <cmath>
 
 using namespace std;
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-struct Equation {
-    map<string, float> coefficient; // x1 is the key and coefficient is the float value
-    float constant = 0; // for example equation 1 = 19; 19 is the constant 
+struct Equ {
+    map<string, float> coef; // x1 is the key and coefficient is the float value
+    float consta = 0; // for example equation 1 = 19; 19 is the constant 
 };
 
 
-string floatToString(float x) {
-    if (fabs(x - round(x)) < 1e-6) {  // is x close to integer like 3.00001 >>> then turn it to 3
+string fToStr(float x) {
+    if (fabs(x - round(x)/*nearest integer*/) < 1e-6) {  // is x close to integer like 3.0000001 >>> then turn it to 3
+        // 3.00001 - 3 = 0.0000001 then convert to nearst integer
         return to_string((int)round(x));  // turn it to nearest integer
     }
     ostringstream ss;
+    /*
+        ostringstream is used because it provides a safe, flexible way to convert the "clean integer"
+        (which might actually be a double that's very close to an integer) to a string
+        without trailing .000000 artifacts.
+    */
     ss << x; // store the clean integer to string
-    return ss.str();
+    return ss.str(); // str() = converts the stringstream to a std::string
+    /*
+        Why not just use to_string()?
+            Modern C++ usually uses:
+                string s = to_string(x);
+            But stringstream is used when:
+                combining multiple things
+                formatting numbers
+                                        Example:
+                                        int x = 3;
+                                        int y = 5;
+                                        stringstream ss;
+                                        ss << x << "x1 + " << y << "x2";
+                                        cout << ss.str();
+                                        Output: 3x1 + 5x2
+    */
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
-string equationToString(const Equation& e) {    // to print the equation
+string equToStr(const Equ& e) {    // to print the equation
     string res;
     bool first = true;
 
-    for (auto& it : e.coefficient) {  // (it) is the keys : loop on vector, map, array, etc.
+    for (auto& it : e.coef) {  // (it) is the keys : loop on vector, map, array, etc.
         float c = it.second;                    // second means the float value and first means the key
         if (fabs(c) < 1e-6) continue;  // if coefficient == 0 then skip this cuz anything multiple with 0 = 0
 
         if (!first && c > 0) res += "+"; // not the first coefficient in the equation then put + in the string and go next
 
         if (fabs(c) != 1) // if coefficient != 1 then get the number cuz 1 can be empty in coefficient
-            res += floatToString(c);
+            res += fToStr(c);
         else if (c == -1)
             res += "-";
 
@@ -50,24 +72,22 @@ string equationToString(const Equation& e) {    // to print the equation
     }
 
     if (res.empty()) res = "0";  // no equation
-    res += "=" + floatToString(e.constant); // no equation = constant
+    res += "=" + fToStr(e.consta); // no equation = constant
     return res;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*
-
-input for example
-1
-6-6+3.2x5-5.2y2-*&(&44x3-[[5+]10-2x4-]]10-5+2=10+3x2
-equation 1
-
+    input for example
+    1
+    6-6+3.2x5-5.2y2-*&(&44x3-[[5+]10-2x4-]]10-5+2=10+3x2
+    equation 1
 */
 
-Equation parseEquation(string s) {  // token
-    Equation e;
+Equ parseEquation(string s) {  // token
+    Equ e;
 
     s.erase(remove(s.begin(), s.end(), ' '), s.end()); // remove the spaces in the equation string
 
@@ -75,7 +95,7 @@ Equation parseEquation(string s) {  // token
     int eqPos = s.find('=');  // finds the index of (=)
     string L = s.substr(0, eqPos); // take part of the string from 0 index to (=) index but dont include (=)
     string R = s.substr(eqPos + 1); // everything starting after (=) index thats why we wrote +1
-    e.constant = 0; // convert constant to float from string (s to f)
+    e.consta = 0; // convert constant to float from string (s to f)
     string LL;
 
     for (int i = 0; i < (int)L.size(); i++) {                                               //---|
@@ -83,7 +103,7 @@ Equation parseEquation(string s) {  // token
             string str(1, L[i]); LL.append(str);                                            //---|-----> clear the Left String from any symbols
         }                                                                                   //---|
     }
-    
+
     if (R[0] == '-') LL.append("+");
     else { LL.append("-"); }
 
@@ -96,9 +116,9 @@ Equation parseEquation(string s) {  // token
         }                                                                                   //---|
         else { string str(1, R[i]); LL.append(str); }                                       //---|
     }
-    
+
     L = LL;
-    
+
     for (int i = 0; i < (int)L.size();) {               // --
         int sign = 1 * sign_helper;                     //   |
         sign_helper = 1;                                //   |
@@ -114,7 +134,7 @@ Equation parseEquation(string s) {  // token
                 ignore = true;                                  //   |
                 L[i] = '0';  sign_helper = sign;                //   | ----> ignore any sympole that not (a-z) or (0-9) or (+,-,=)
             }                                                   //   |
-        }
+        }                                                       // --
 
         int start = i; string as = "0";
         float coef = 0;  // this var to store the coef
@@ -145,12 +165,12 @@ Equation parseEquation(string s) {  // token
                 var += L[i++]; // loop to read the full name x 1 2 = x12
             }
 
-            e.coefficient[var] += coef * sign_helper; // store the var name as key and its coef in its value in the map var
+            e.coef[var] += coef * sign_helper; // store the var name as key and its coef in its value in the map var
         }
         else {
             if (!ignore) {
                 //cout << endl << coef << endl;
-                e.constant -= coef; // its a constant without x then - the main constant the Right Equation
+                e.consta -= coef; // its a constant without x then - the main constant the Right Equation
             }
         }
     }
@@ -167,7 +187,7 @@ Equation parseEquation(string s) {  // token
     #include <algorithm> // swap
 */
 
-float determinant(vector<vector<float>> a) { /* it takes the equations as matrix like a[0] = {2, 3, 4} without the x vars
+float dt(vector<vector<float>> a) { /* it takes the equations as matrix like a[0] = {2, 3, 4} without the x vars
                                                                                       a[1] = {1, 2, 1}
                                                                                       a[2] = {3, 1, 2} */
 
@@ -181,7 +201,7 @@ float determinant(vector<vector<float>> a) { /* it takes the equations as matrix
 
                                                                                       So determinant is calculated for two purposes
                                                                                           det(A) ? check if system has a unique solution
-                                                                                          det(Ai) ? calculate variable values using Cramers Rule
+                                                                                          det(Ai) ? calculate variable values using Cramer’s Rule
 
                                                                                       What happens if det(A) = 0?
                                                                                           System cannot be solved uniquely
@@ -192,15 +212,15 @@ float determinant(vector<vector<float>> a) { /* it takes the equations as matrix
     float det = 1;
 
     for (int i = 0; i < n; i++) {   // Loop over columns
-        int pivot = i;   // we are in the first column lets check rows of this column
+        int piv = i;   // we are in the first column lets check rows of this column
         for (int j = i; j < n; j++) // Loop over rows
-            if (fabs(a[j][i]) > fabs(a[pivot][i]))  // in the one column which is the largest absolute in the rows of this column
-                pivot = j;                          // then give me the index of the row so the winner in our matrix is [(3) up up up]
+            if (fabs(a[j][i]) > fabs(a[piv][i]))  // in the one column which is the largest absolute in the rows of this column
+                piv = j;                          // then give me the index of the row so the winner in our matrix is [(3) up up up]
 
-        if (fabs(a[pivot][i]) < 1e-6) return 0; // its less than 0.00001
+        if (fabs(a[piv][i]) < 1e-6) return 0; // its less than 0.00001
 
-        if (pivot != i) {
-            swap(a[pivot], a[i]); /* a[0] = {3, 3, 4} we swaped for example 3 with 2 in the first column
+        if (piv != i) {
+            swap(a[piv], a[i]); /* a[0] = {3, 3, 4} we swaped for example 3 with 2 in the first column
                                      a[1] = {1, 2, 1}
                                      a[2] = {2, 1, 2} */
             det *= -1; // Row swap flips determinant sign
@@ -238,21 +258,42 @@ int main() {
     int n; // declare variable to store number of equations
     cin >> n; // read number of equations from input
     cin.ignore(); // ignore the remaining newline character after reading n
-    vector<Equation> eq(n); // create a vector to store n Equation objects
+    vector<Equ> eq(n); // create a vector to store n Equation objects
     set<string> variables; // set to store unique variable names (x1, x2, x3, ...)
+    /*
+        example on set:
+            variables.insert("apple");
+            variables.insert("banana");
+            variables.insert("cherry");
+            variables.insert("apple"); // duplicate - won't be added
+            variables = {"apple", "banana", "cherry"}
+
+    /*
+        we use set to fix the diplication for example:
+        3x1 + 2x2 = 25
+        5x1 - 4x2 = 20
+
+        When extracting variables:
+
+        x1
+        x2
+        x1
+        x2
+    */
 
     for (int i = 0; i < n; i++) { // loop to read each equation
         string s; // string to hold the equation line
         getline(cin, s); // read the full equation line (including +, -, =)
         eq[i] = parseEquation(s); // parse the equation string into coefficients and constant
-        for (auto& p : eq[i].coefficient) // loop over each variable-coefficient pair in the equation
+        for (auto& p : eq[i].coef) // loop over each variable-coefficient pair in the equation
             variables.insert(p.first); // insert variable name into the set (duplicates auto removed)
     }
+
 
     vector<string> varList(variables.begin(), variables.end()); // convert set of variables into a vector (ordered list of variables)
     string cmd; // string to store command entered by user
 
-    while (cin >> cmd) { // keep reading commands until input ends
+    while (cin/*reads words*/ >> cmd) { // keep reading commands until input ends
 
         if (cmd == "quit") break; // if command is "quit", stop the program
         if (cmd == "num_vars") {  // command to print number of variables
@@ -261,10 +302,9 @@ int main() {
         else if (cmd == "equation") { // command to print a specific equation
             int i; // equation index
             cin >> i; // read equation number
-            cout << equationToString(eq[i - 1]) << endl; // print equation in proper form (1-based index)
+            cout << equToStr(eq[i - 1]) << endl; // print equation in proper form (1-based index)
         }
 
-        
         else if (cmd == "column") {
             // command to print coefficient column of a variable
 
@@ -277,10 +317,10 @@ int main() {
             for (int i = 0; i < n; i++) {
                 // loop through equations
 
-                if (eq[i].coefficient.count(v))
+                if (eq[i].coef.count(v))
                     // if variable exists in equation
 
-                    cout << floatToString(eq[i].coefficient[v]) << endl;
+                    cout << fToStr(eq[i].coef[v]) << endl;
                 // print its coefficient
 
                 else
@@ -299,28 +339,28 @@ int main() {
             cin >> a >> b;
             // read equation numbers
 
-            Equation r;
+            Equ r;
             // result equation
 
             for (auto& v : varList) {
                 // loop over all variables
 
-                float x = eq[a - 1].coefficient[v];
+                float x = eq[a - 1].coef[v];
                 // coefficient of variable in equation a
 
-                float y = eq[b - 1].coefficient[v];
+                float y = eq[b - 1].coef[v];
                 // coefficient of variable in equation b
 
-                r.coefficient[v] = (cmd == "add") ? x + y : x - y;
+                r.coef[v] = (cmd == "add") ? x + y : x - y;
                 // add or subtract coefficients
             }
 
-            r.constant = (cmd == "add")
-                ? eq[a - 1].constant + eq[b - 1].constant
-                : eq[a - 1].constant - eq[b - 1].constant;
+            r.consta = (cmd == "add")
+                ? eq[a - 1].consta + eq[b - 1].consta
+                : eq[a - 1].consta - eq[b - 1].consta;
             // add or subtract constants
 
-            cout << equationToString(r) << endl;
+            cout << equToStr(r) << endl;
             // print result equation
         }
 
@@ -331,28 +371,26 @@ int main() {
             string v; // variable to eliminate
             int a, b; // equation indices
             cin >> v >> a >> b; // read variable and equation numbers
-            Equation r = eq[a - 1]; // start with equation a
-            float c = eq[a - 1].coefficient[v]; // coefficient of variable v in equation a
+            Equ r = eq[a - 1]; // start with equation a
+            float c = eq[a - 1].coef[v]; // coefficient of variable v in equation a
             if (fabs(c) > 1e-6) { // if coefficient is not zero
-            r.coefficient.erase(v); // remove variable v from result equation
+                r.coef.erase(v); // remove variable v from result equation
 
-                for (auto& p : eq[b - 1].coefficient) {
+                for (auto& p : eq[b - 1].coef) {
                     // loop through equation b coefficients
 
                     if (p.first != v)
                         // skip the substituted variable
 
-                        r.coefficient[p.first] -=
-                        c * p.second / eq[b - 1].coefficient.at(v);
+                        r.coef[p.first] -= c * p.second / eq[b - 1].coef.at(v);
                     // substitute variable using equation b
                 }
 
-                r.constant -=
-                    c * eq[b - 1].constant / eq[b - 1].coefficient.at(v);
+                r.consta -= c * eq[b - 1].consta / eq[b - 1].coef.at(v);
                 // update constant term
             }
 
-            cout << equationToString(r) << endl;
+            cout << equToStr(r) << endl;
             // print substituted equation
         }
 
@@ -361,84 +399,102 @@ int main() {
 
             int m = varList.size(); // number of variables
             vector<vector<float>> A(m, vector<float>(m)); // coefficient matrix
+            /*
+                // 2 rows, 5 columns
+                vector<vector<float>> C(2, vector<float>(5));
+                /*
+                C = [
+                      [0, 0, 0, 0, 0],  // row 0 (5 columns)
+                      [0, 0, 0, 0, 0]   // row 1 (5 columns)
+                    ]
+            */
             vector<float> B(m); // constant column
 
             for (int i = 0; i < m; i++) { // build matrix from equations
-                B[i] = eq[i].constant; // store constant values
+                B[i] = eq[i].consta; // store constant values
                 for (int j = 0; j < m; j++)
-                    A[i][j] = eq[i].coefficient[varList[j]]; // store coefficients
+                    A[i][j] = eq[i].coef[varList[j]]; // store coefficients
             }
 
 
             if (cmd == "D") { // print coefficient matrix
 
                 if (cin.peek() == '\n') {
-    // user typed: D
+                    // user typed: D
 
-    for (int i = 0; i < m; i++) {
-        for (int j = 0; j < m; j++) {
-            if (j) cout << " ";
-            cout << floatToString(A[i][j]);
-        }
-        cout << endl;
-    }
-}
-else {
-    // user typed: D x1
+                    for (int i = 0; i < m; i++) {
+                        for (int j = 0; j < m; j++) {
+                            if (j) cout << " ";
+                            cout << fToStr(A[i][j]);
+                        }
+                        cout << endl;
+                    }
+                }
+                else {
+                    // user typed: D x1
 
-    string v;
-    cin >> v;
+                    //////////////////////////////////////////////////////////////////////////
+                    //                    replace x1 column with constants                  //
+                    //////////////////////////////////////////////////////////////////////////
 
-    int col = find(varList.begin(), varList.end(), v)/*find position*/ - varList.begin();
+                    string v;
+                    cin >> v;
 
-    for (int i = 0; i < m; i++) {
-        for (int j = 0; j < m; j++) {
+                    int col = find(varList.begin(), varList.end(), v)/*find position*/ - varList.begin();
 
-            float val = (j == col) ? B[i] : A[i][j];
+                    for (int i = 0; i < m; i++) {
+                        for (int j = 0; j < m; j++) {
 
-            if (j) cout << " ";
+                            float val = (j == col) ? B[i] : A[i][j];
 
-            cout << floatToString(val);
-        }
-        cout << endl;
-    }
-}
+                            if (j) cout << " ";
+
+                            cout << fToStr(val);
+                        }
+                        cout << endl;
+                    }
+                }
             }
 
 
             else if (cmd == "D_value") { // print determinant value
-                cout << floatToString(determinant(A)) << endl;
+                cout << fToStr(dt(A)) << endl;
             }
-            else { // solve equations using Cramer's rule
-                float D = determinant(A); // main determinant
 
-                if (fabs(D) < 1e-6) { // determinant is zero
-                    cout << "No Solution" << endl;
-                }
-                else {
-                    for (int i = 0; i < m; i++) {
-                        // calculate each variable
-
-                        vector<vector<float>> Ai = A;
-                        // copy matrix
-
-                        for (int j = 0; j < m; j++)
-                            Ai[j][i] = B[j];
-                        // replace column i with constants
-
-                        float Di = determinant(Ai);
-                        // determinant for variable i
-
-                        cout << varList[i] << "="
-                            << floatToString(Di / D) << endl;
-                        // print solution
-                    }
-                }
-            }
+            //////////////////////////////////////////////////////////////////////////
+            //                           input = solve                              //
+            //////////////////////////////////////////////////////////////////////////
+                    //                                                               -
+            else { // solve equations using Cramer's rule                            -
+                float D = dt(A); // main determinant                                 -
+                                            //                                       -
+                if (fabs(D) < 1e-6) { // determinant is zero                         -
+                    cout << "No Solution" << endl; //                                -
+                }                                   //                               -
+                else {      //                                                       -
+                    for (int i = 0; i < m; i++) { //                                 -
+                        // calculate each variable                                   -
+                            //                                                       -
+                        vector<vector<float>> Ai = A; //                             -
+                        // copy matrix                                               -
+                        //                                                           -
+                        for (int j = 0; j < m; j++) //                               -
+                            Ai[j][i] = B[j]; //                                      -
+                        // replace column i with constants                           -
+                        //                                                           -
+                        float Di = dt(Ai);//                                         -
+                        // determinant for variable i                                -
+                        //                                                           -
+                        cout << varList[i] << "=" //                                 -
+                            << fToStr(Di / D) << endl;//                             -
+                        // print solution                                            -
+                    } //                                                             -
+                } //                                                                 -
+            } //                                                                     -
+            //------------------------------------------------------------------------
         }
-
-    }
-    
-        return 0;
+        
     }
 
+    return 0;
+}
